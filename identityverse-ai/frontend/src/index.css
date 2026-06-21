@@ -1,0 +1,242 @@
+@import "tailwindcss";
+
+/*
+  AccessDNA AI -- Design Tokens (v2 / "Command Center" upgrade)
+  ----------------------------------------------------------------
+  Evolution, not replacement: same dark-charcoal-not-black base and
+  cyan/violet signature pairing as before (cyan = structural/identity data,
+  violet = AI-generated content) -- that distinction is load-bearing for
+  the product's honesty ("is this the system talking or the AI talking?")
+  and stays. What's new is a third layer: aurora-mesh ambient lighting and
+  stronger glass panels, because this iteration is explicitly modeled on
+  command-center tools (Palantir/Falcon/Defender XDR) where the chrome
+  itself communicates "live system," not just a static dashboard.
+
+  Risk-band colors remain semantic and fixed -- never used decoratively.
+*/
+
+@theme {
+  /* Surfaces */
+  --color-base: #07090F;
+  --color-surface: #10162355;
+  --color-surface-solid: #131A28;
+  --color-elevated: #1A2334;
+  --color-border: #232E45;
+  --color-border-soft: #1C2536;
+
+  /* Text */
+  --color-text-primary: #E8ECF6;
+  --color-text-secondary: #9AA5BD;
+  --color-text-muted: #6B7790;
+
+  /* Signature accents */
+  --color-identity: #2DE2C8;      /* cyan -- identity graph, structural data */
+  --color-identity-dim: #1B8C7C;
+  --color-ai: #9B7BFF;             /* violet -- AI CISO / Groq-sourced content */
+  --color-ai-dim: #6451A8;
+  --color-aurora-rose: #FF5C8A;    /* third aurora accent, ambient only -- never used for data */
+
+  /* Risk bands (semantic, fixed) */
+  --color-risk-low: #34D399;
+  --color-risk-medium: #FBBF24;
+  --color-risk-high: #FB8B3C;
+  --color-risk-critical: #FB4768;
+
+  /* Type */
+  --font-display: "Space Grotesk", "IBM Plex Sans", sans-serif;
+  --font-body: "IBM Plex Sans", "Inter", sans-serif;
+  --font-mono: "IBM Plex Mono", "JetBrains Mono", monospace;
+}
+
+@layer base {
+  html {
+    background: var(--color-base);
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--color-base);
+    color: var(--color-text-primary);
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background: var(--color-identity);
+    color: var(--color-base);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-identity);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .font-mono-tabular {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Base glass panel -- unchanged shape, slightly deeper blur */
+  .glass-panel {
+    background: var(--color-surface);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--color-border-soft);
+  }
+
+  /* Heavier glass for hero/command-center panels */
+  .glass-panel-deep {
+    background: linear-gradient(180deg, rgba(19, 26, 40, 0.75), rgba(16, 22, 35, 0.55));
+    backdrop-filter: blur(28px) saturate(140%);
+    -webkit-backdrop-filter: blur(28px) saturate(140%);
+    border: 1px solid var(--color-border-soft);
+  }
+
+  .text-glow-identity {
+    text-shadow: 0 0 24px rgba(45, 226, 200, 0.35);
+  }
+
+  .text-glow-ai {
+    text-shadow: 0 0 24px rgba(155, 123, 255, 0.35);
+  }
+
+  /* Animated aurora mesh -- ambient background only, never carries data */
+  .aurora-mesh {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    background: var(--color-base);
+  }
+
+  .aurora-mesh::before,
+  .aurora-mesh::after {
+    content: "";
+    position: absolute;
+    width: 70vw;
+    height: 70vw;
+    border-radius: 9999px;
+    filter: blur(110px);
+    opacity: 0.18;
+    will-change: transform;
+  }
+
+  .aurora-mesh::before {
+    top: -20vw;
+    left: -10vw;
+    background: radial-gradient(circle, var(--color-identity), transparent 65%);
+    animation: aurora-drift-a 22s ease-in-out infinite alternate;
+  }
+
+  .aurora-mesh::after {
+    bottom: -25vw;
+    right: -15vw;
+    background: radial-gradient(circle, var(--color-ai), transparent 65%);
+    animation: aurora-drift-b 26s ease-in-out infinite alternate;
+  }
+
+  @keyframes aurora-drift-a {
+    0%   { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(6vw, 8vw) scale(1.15); }
+  }
+
+  @keyframes aurora-drift-b {
+    0%   { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-5vw, -6vw) scale(1.1); }
+  }
+
+  /* Scanning grid overlay -- subtle, suggests "live telemetry" */
+  .grid-overlay {
+    background-image:
+      linear-gradient(rgba(45, 226, 200, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45, 226, 200, 0.035) 1px, transparent 1px);
+    background-size: 42px 42px;
+  }
+
+  /* Glow ring used on the most critical/attention-grabbing cards */
+  .ring-glow-critical {
+    box-shadow: 0 0 0 1px rgba(251, 71, 104, 0.35), 0 0 32px -6px rgba(251, 71, 104, 0.45);
+  }
+
+  .ring-glow-identity {
+    box-shadow: 0 0 0 1px rgba(45, 226, 200, 0.3), 0 0 32px -8px rgba(45, 226, 200, 0.4);
+  }
+
+  .ring-glow-ai {
+    box-shadow: 0 0 0 1px rgba(155, 123, 255, 0.3), 0 0 32px -8px rgba(155, 123, 255, 0.4);
+  }
+
+  /* Live ticker marquee, used by the Command Center risk feed */
+  @keyframes ticker-scroll {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+  }
+
+  .ticker-track {
+    animation: ticker-scroll 18s linear infinite;
+  }
+
+  .ticker-track:hover {
+    animation-play-state: paused;
+  }
+
+  /* Soft pulse for live/status indicators */
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .pulse-dot {
+    animation: pulse-dot 1.6s ease-in-out infinite;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #report-print-area, #report-print-area * {
+    visibility: visible;
+  }
+  #report-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white !important;
+    color: #111 !important;
+    padding: 24px;
+  }
+  #report-print-area * {
+    color: #111 !important;
+    border-color: #ccc !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  #report-print-area .print-accent {
+    color: #1B8C7C !important;
+    font-weight: 700;
+  }
+  #report-print-area .print-critical {
+    color: #B91C3C !important;
+    font-weight: 700;
+  }
+}
+
